@@ -26,12 +26,38 @@ const store = new LazyStore(PLUGIN_REGISTRY_FILE);
 
 const keyFor = (id: string): string => `${PREFIX}${id}`;
 
+/* Checks only what the player cannot load a plugin without. Rows written
+ * before `installationMethod` existed store `location` instead and must still
+ * pass, so the rest of the entry is returned as stored. */
+const isRegistryEntry = (value: unknown): value is PluginRegistryEntry => {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+  const entry = value as Record<string, unknown>;
+  return (
+    typeof entry.id === 'string' &&
+    entry.id.length > 0 &&
+    typeof entry.version === 'string' &&
+    typeof entry.path === 'string' &&
+    typeof entry.enabled === 'boolean'
+  );
+};
+
+const warnMalformed = (key: string): void => {
+  logger.warn(`Ignoring malformed registry entry ${key}`);
+};
+
 export const listRegistryEntries = async (): Promise<PluginRegistryEntry[]> => {
   const entries = await store.entries();
   const res: PluginRegistryEntry[] = [];
   Array.from(entries).forEach(([key, value]) => {
-    if (String(key).startsWith(PREFIX)) {
-      res.push(value as PluginRegistryEntry);
+    if (!String(key).startsWith(PREFIX)) {
+      return;
+    }
+    if (isRegistryEntry(value)) {
+      res.push(value);
+    } else {
+      warnMalformed(String(key));
     }
   });
   return res;
@@ -40,11 +66,15 @@ export const listRegistryEntries = async (): Promise<PluginRegistryEntry[]> => {
 export const getRegistryEntry = async (
   id: string,
 ): Promise<PluginRegistryEntry | undefined> => {
-  const value = await store.get<PluginRegistryEntry | undefined>(keyFor(id));
-  if (value) {
-    return value;
+  const value = await store.get<unknown>(keyFor(id));
+  if (value === undefined || value === null) {
+    return undefined;
   }
-  return undefined;
+  if (!isRegistryEntry(value)) {
+    warnMalformed(keyFor(id));
+    return undefined;
+  }
+  return value;
 };
 
 export const upsertRegistryEntry = async (

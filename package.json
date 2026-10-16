@@ -1,8 +1,7 @@
 {
   "name": "@tahti-player/plugin-registry",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Runtime plugin registry (plugins.json LazyStore) for tahti-player",
-  "private": true,
   "type": "module",
   "main": "./src/index.ts",
   "module": "./src/index.ts",
@@ -14,15 +13,26 @@
     "src"
   ],
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest --run",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@tauri-apps/plugin-store": "~2.4.0"
   },
   "devDependencies": {
-    "@tahti-player/eslint-config": "workspace:*",
-    "typescript": "^5.9.2"
-  }
+    "prettier": "3.9.8",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
+  },
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/janiluuk/tahti-plugin-registry.git"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@12.5.1"
 }

@@ -1,5 +1,5 @@
-/** Registry contract. Storage constants and entry shape are frozen — see
- * ../tahti-org docs/todo/plugin-registry-extraction.md §5.6. */
+/** Registry contract. Storage constants and entry shape are frozen: existing
+ * installs depend on them (see README "Invariants"). */
 export type PluginInstallationMethod = 'dev' | 'store';
 
 export type PluginRegistryEntry = {
@@ -19,7 +19,7 @@ export const PLUGIN_REGISTRY_FILE = 'plugins.json' as const;
 export const PLUGIN_REGISTRY_KEY_PREFIX = 'plugins.' as const;
 
 /**
- * Persistence + query — maps 1:1 to pluginRegistry.ts free functions.
+ * Persistence + query — maps 1:1 to the free functions in registry.ts.
  * Only the implementation of this interface may touch LazyStore / plugins.json.
  */
 export interface PluginRegistryStore {
@@ -40,10 +40,8 @@ export type MarketplacePluginRelease = {
 };
 
 /**
- * Host-facing lifecycle — UI, bootstrap, auto-update.
- * Today spread across pluginStore, pluginBootstrap, pluginAutoUpdate,
- * useInstallPlugin; not owned by pluginRegistry.ts alone. Not yet
- * implemented by anything — the store side (above) comes first.
+ * Host-facing lifecycle — UI, bootstrap, auto-update. Implemented by the
+ * player (`pluginRegistryHost.ts`), not by this package.
  */
 export interface PluginRegistryHost {
   hydrateFromRegistry(): Promise<void>;
